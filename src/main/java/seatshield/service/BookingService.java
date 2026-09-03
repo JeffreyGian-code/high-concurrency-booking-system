@@ -1,8 +1,9 @@
 package seatshield.service;
 
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import seatshield.entity.Seat;
+import seatshield.exception.SeatAlreadyTakenException;
 import seatshield.repository.SeatRepository;
 
 @Service
@@ -17,12 +18,12 @@ public class BookingService {
     @Transactional
     public Seat bookSeat(Long seatId) {
 
-        Seat seat = seatRepository.findById(seatId)
+        Seat seat = seatRepository.findSeatForUpdate(seatId)
                 .orElseThrow(() ->
                         new RuntimeException("Seat not found"));
 
         if (seat.isBooked()) {
-            throw new RuntimeException("Seat is already booked");
+            throw new SeatAlreadyTakenException(seatId);
         }
 
         seat.setBooked(true);
