@@ -1,4 +1,21 @@
 package seatshield.repository;
 
-public class SeatRepository {
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import seatshield.entity.Seat;
+
+import java.util.Optional;
+
+public interface SeatRepository extends JpaRepository<Seat, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            SELECT s
+            FROM Seat s
+            WHERE s.id = :id
+            """)
+    Optional<Seat> findSeatForUpdate(@Param("id") Long id);
 }
